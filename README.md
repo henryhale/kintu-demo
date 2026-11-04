@@ -2,7 +2,11 @@
 
 A simple Streamlit app template for you to chat in Luganda with a small 39M-parameter model. Replies can be short or off-topic.
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+[![Chat with Kintu-1.0-39M](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://kintu-demo-kq5xakecfjqwi2jdxco6kq.streamlit.app/)
+
+### Live demo
+
+🚀[Chat with Kintu-1.0-39M](https://kintu-demo-kq5xakecfjqwi2jdxco6kq.streamlit.app/)
 
 ### How to run it on your own machine
 
