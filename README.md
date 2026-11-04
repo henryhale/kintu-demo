@@ -1,6 +1,6 @@
-# 🎈 Blank app template
+# Kintu-1.0-39M 
 
-A simple Streamlit app template for you to modify!
+A simple Streamlit app template for you to chat in Luganda with a small 39M-parameter model. Replies can be short or off-topic.
 
 [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
 
