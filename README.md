@@ -1,3 +1,5 @@
+<div align=center>
+
 # Kintu-1.0-39M 
 
 A simple Streamlit app template for you to chat in Luganda with a small 39M-parameter model. Replies can be short or off-topic.
@@ -7,6 +9,11 @@ A simple Streamlit app template for you to chat in Luganda with a small 39M-para
 ### Live demo
 
 🚀[Chat with Kintu-1.0-39M](https://kintu-demo-kq5xakecfjqwi2jdxco6kq.streamlit.app/)
+
+![](./screenshot.png)
+
+</div>
+
 
 ### How to run it on your own machine
 
