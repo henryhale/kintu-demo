@@ -1,14 +1,14 @@
 <div align=center>
 
-# Kintu-1.0-39M 
+# Kintu 
 
-A simple Streamlit app template for you to chat in Luganda with a small 39M-parameter model. Replies can be short or off-topic.
+A monolingual language model in Luganda with a small 39M-parameter model. Replies can be short or off-topic.
 
-[![Chat with Kintu-1.0-39M](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://kintu-demo-kq5xakecfjqwi2jdxco6kq.streamlit.app/)
+[![Chat with Kintu-2.0-30M](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://kintu-demo-kq5xakecfjqwi2jdxco6kq.streamlit.app/)
 
 ### Live demo
 
-🚀[Chat with Kintu-1.0-39M](https://kintu-demo-kq5xakecfjqwi2jdxco6kq.streamlit.app/)
+🚀[Chat with Kintu-2.0-30M](https://kintu-demo-kq5xakecfjqwi2jdxco6kq.streamlit.app/)
 
 ![](./screenshot.png)
 
