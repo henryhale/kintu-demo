@@ -1,45 +1,58 @@
-"""Luganda chat with Kintu. Run: streamlit run app.py"""
+"""Luganda chat with Kintu 2. Run: streamlit run streamlit_app.py"""
 
 import time
 
 import streamlit as st
 
-REPO = "henryhale/Kintu-1.0-39M"
-SUGGESTIONS = ["Oli otya?", "Wasuze otya nno?", "Osiibye otyanno ssebo?"]
+MODELS = {
+    "Kintu-2.0-Instruct": "henryhale/Kintu-2.0-30M-Instruct",
+    "Kintu-2.0": "henryhale/Kintu-2.0-30M",
+}
+SYSTEM = "Oli muyambi ow'amagezi ayamba abantu mu Luganda."
+SUGGESTIONS = [
+    "Oli otya mukwano?",
+    "Njagala kufumba emmere.",
+    "Mwana wange tayagala kusoma. Nkole ntya?",
+    "Nnyinza ntya okutereka ssente okuva mu musaala omutono?",
+]
 
-st.set_page_config(page_title="Kintu-1.0", page_icon="💬")
+GENERATION = dict(max_new_tokens=128, do_sample=True, temperature=0.5, top_p=0.8, repetition_penalty=1.1)
+CONTEXT = 512  # the models were trained on at most 512 tokens
+
+st.set_page_config(page_title="Kintu-2.0", page_icon="💬")
 st.title("💬 Kintu")
-st.caption("Chat in Luganda with a small 39M-parameter model. Replies can be short or off-topic.")
+st.caption("Chat in Luganda with a small 30M-parameter model. Replies may not be accurate.")
 
 
-@st.cache_resource(show_spinner="Loading Kintu-1.0…")  # once per server process
-def load():
+@st.cache_resource(show_spinner="Loading Kintu…")  # once per model per server process
+def load(repo):
     start = time.time()
-    print("loading model…", flush=True)
-    from transformers import AutoModelForCausalLM, PreTrainedTokenizerFast
+    print(f"loading {repo}…", flush=True)
+    from transformers import AutoModelForCausalLM, AutoTokenizer
 
-    tok, model = PreTrainedTokenizerFast.from_pretrained(REPO), AutoModelForCausalLM.from_pretrained(REPO)
+    tok, model = AutoTokenizer.from_pretrained(repo), AutoModelForCausalLM.from_pretrained(repo)
     print(f"model loaded in {time.time() - start:.0f} s", flush=True)
     return tok, model
 
 
-tok, model = load()
 messages = st.session_state.setdefault("messages", [])
 
 
-def reply(message, temperature, top_p, max_new_tokens):
-    inputs = tok(f"[CLS]Omuntu: {message} Omuyambi:", return_tensors="pt", add_special_tokens=False)
-    out = model.generate(
-        **inputs,
-        max_new_tokens=max_new_tokens,
-        do_sample=True,
-        temperature=temperature,
-        top_p=top_p,
-        eos_token_id=tok.convert_tokens_to_ids("[SEP]"),
-        pad_token_id=tok.convert_tokens_to_ids("<pad>"),
-    )
-    text = tok.decode(out[0, inputs.input_ids.shape[1] :], skip_special_tokens=True)
-    return text.split("Omuntu:")[0].strip()  # cut it off if it starts writing the user's next turn
+def reply(tok, model, history):
+    # Drop the oldest exchanges until the chat plus the reply fits the context.
+    while True:
+        enc = tok.apply_chat_template(
+            [{"role": "system", "content": SYSTEM}] + history,
+            add_generation_prompt=True,
+            return_tensors="pt",
+            return_dict=True,
+        )
+        if enc["input_ids"].shape[1] + GENERATION["max_new_tokens"] <= CONTEXT or len(history) <= 1:
+            break
+        history = history[2:]
+    enc.pop("token_type_ids", None)  # generate() rejects it
+    out = model.generate(**enc, **GENERATION, pad_token_id=tok.pad_token_id)
+    return tok.decode(out[0, enc["input_ids"].shape[1] :], skip_special_tokens=True).strip()
 
 
 def send(text):
@@ -48,15 +61,15 @@ def send(text):
 
 with st.sidebar:
     st.title("Settings")
-    temperature = st.slider("Temperature", 0.1, 1.5, 1.0, 0.05, help="Lower = safer but more repetitive replies.")
-    top_p = st.slider("Top-p", 0.1, 1.0, 0.9, 0.05, help="Sample only from the likeliest words covering this share.")
-    max_new_tokens = st.slider("Max reply length (tokens)", 10, 120, 40, 10)
+    name = st.selectbox("Model", list(MODELS), help="Instruct is Kintu-2.0 fine-tuned further on chats and preferences.")
     st.button("New chat", on_click=messages.clear, disabled=not messages)
+
+tok, model = load(MODELS[name])
 
 if not messages:
     st.write("Try one:")
-    for col, s in zip(st.columns(len(SUGGESTIONS)), SUGGESTIONS):
-        col.button(s, on_click=send, args=(s,))
+    for col, s in zip(st.columns(2) * 2, SUGGESTIONS):
+        col.button(s, on_click=send, args=(s,), width="stretch")
 
 for m in messages:
     with st.chat_message(m["role"]):
@@ -65,7 +78,7 @@ for m in messages:
 if messages and messages[-1]["role"] == "user":
     with st.chat_message("assistant"):
         with st.spinner("Thinking…"):
-            text = reply(messages[-1]["content"], temperature, top_p, max_new_tokens)
+            text = reply(tok, model, messages)
         text = text or "_(empty reply, try again)_"
         st.markdown(text)
     messages.append({"role": "assistant", "content": text})
