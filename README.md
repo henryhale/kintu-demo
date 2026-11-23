@@ -2,7 +2,7 @@
 
 # Kintu 
 
-A monolingual language model in Luganda with a small 39M-parameter model. Replies can be short or off-topic.
+A small 39M-parameter Luganda language model. Replies can be short or off-topic.
 
 [![Chat with Kintu-2.0-30M](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://kintu-demo-kq5xakecfjqwi2jdxco6kq.streamlit.app/)
 
